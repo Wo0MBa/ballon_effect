@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Взрывающийся шарик</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Лопающийся шарик</title>
   <style>
     body {
       display: flex;
@@ -10,48 +11,51 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background: #f0f0f0;
+      background: #f0f8ff;
+      overflow: hidden;
     }
 
     #balloon {
       width: 150px;
       cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #balloon:hover {
+      transform: scale(1.1);
+    }
+
+    #explosion {
+      position: absolute;
+      width: 200px;
+      display: none;
     }
   </style>
 </head>
 <body>
   <img id="balloon" src="https://i.pinimg.com/736x/66/c9/fd/66c9fd75cececa4204ca192f5d2c04ae.jpg" alt="Balloon">
+  <img id="explosion" src="https://i.gifer.com/origin/98/98cd8b0884579e1d0039f074093070f3_w200.gif" alt="Explosion">
 
-  <script src="https://cdn.jsdelivr.net/npm/@mojs/core"></script>
   <script>
     const balloon = document.getElementById('balloon');
+    const explosion = document.getElementById('explosion');
 
     balloon.addEventListener('click', () => {
-      // Скрыть картинку
+      // Позиционируем взрыв точно на месте шарика
+      const rect = balloon.getBoundingClientRect();
+      explosion.style.left = rect.left + rect.width/2 - 100 + 'px';
+      explosion.style.top = rect.top + rect.height/2 - 100 + 'px';
+      
+      // Скрываем шарик
       balloon.style.display = 'none';
-
-      // Создать эффект взрыва
-      new mojs.Html({
-        el: balloon,
-        duration: 800,
-        scale: { 1: 0 },
-        opacity: { 1: 0 },
-        isShowEnd: false
-      }).play();
-
-      // Частицы
-      new mojs.Burst({
-        left: balloon.getBoundingClientRect().left + balloon.offsetWidth / 2,
-        top: balloon.getBoundingClientRect().top + balloon.offsetHeight / 2,
-        radius: { 0: 100 },
-        count: 10,
-        children: {
-          shape: 'circle',
-          fill: { 'red': '#ff0000' },
-          duration: 1000,
-          radius: { 10: 0 }
-        }
-      }).play();
+      
+      // Показываем взрыв
+      explosion.style.display = 'block';
+      
+      // Через 1 секунду скрываем взрыв
+      setTimeout(() => {
+        explosion.style.display = 'none';
+      }, 1000);
     });
   </script>
 </body>
