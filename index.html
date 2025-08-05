@@ -2,121 +2,48 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Split Vertical Effect</title>
+  <title>Лопающийся шарик</title>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: transparent;
-      font-family: Arial, sans-serif;
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-    .container {
-      position: relative;
-      width: 100vw;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      margin: 0;
+      background: #f0f0f0;
     }
-    .main-image {
-      width: 300px;
-      height: 200px;
+
+    .balloon {
+      width: 150px;
       cursor: pointer;
-      object-fit: contain;
-      z-index: 20;
-      position: absolute;
-      border: none;
-      outline: none;
-      box-shadow: none;
+      transition: transform 0.2s;
     }
-    .main-image:hover {
-      transform: scale(1.03);
-      transition: transform 0.2s ease;
+
+    .balloon:hover {
+      transform: scale(1.1);
     }
-    .half {
-      position: absolute;
-      pointer-events: none;
-      z-index: 15;
-      border: none;
-      outline: none;
-      box-shadow: none;
-      object-fit: contain;
+
+    .pop {
+      animation: pop 0.5s forwards;
     }
-    .half-top {
-      width: 300px;
-      height: 100px;
-      clip-path: polygon(0 0, 300px 0, 300px 100px, 0 100px);
-    }
-    .half-bottom {
-      width: 300px;
-      height: 100px;
-      clip-path: polygon(0 0, 300px 0, 300px 100px, 0 100px);
+
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="" alt="" class="main-image" id="mainImg">
-  </div>
+  <img src="https://avatars.mds.yandex.net/i?id=954278996e43c39c91eb56c862eeb5d3_l-5354250-images-thumbs&n=13" class="balloon" id="balloon" alt="Balloon">
 
   <script>
-    // Получаем параметр из URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const imgUrl = urlParams.get('img') || 'https://avatars.mds.yandex.net/i?id=954278996e43c39c91eb56c862eeb5d3_l-5354250-images-thumbs&n=13';
+    const balloon = document.getElementById('balloon');
 
-    // Устанавливаем изображение
-    const mainImg = document.getElementById("mainImg");
-    mainImg.src = imgUrl;
-
-    mainImg.addEventListener("click", function(e) {
-      const rect = mainImg.getBoundingClientRect();
-      const container = mainImg.closest('.container');
-      
-      // Скрываем оригинальное изображение
-      mainImg.style.pointerEvents = 'none';
-      mainImg.style.opacity = '0';
-      
-      // Создаем верхнюю половину
-      const topHalf = document.createElement('img');
-      topHalf.classList.add('half', 'half-top');
-      topHalf.src = imgUrl;
-      topHalf.style.left = rect.left + 'px';
-      topHalf.style.top = rect.top + 'px';
-      
-      // Создаем нижнюю половину
-      const bottomHalf = document.createElement('img');
-      bottomHalf.classList.add('half', 'half-bottom');
-      bottomHalf.src = imgUrl;
-      bottomHalf.style.left = rect.left + 'px';
-      bottomHalf.style.top = (rect.top + 100) + 'px';
-      
-      container.appendChild(topHalf);
-      container.appendChild(bottomHalf);
-      
-      // Анимация разлета вверх и вниз
+    balloon.addEventListener('click', () => {
+      balloon.classList.add('pop');
       setTimeout(() => {
-        topHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        topHalf.style.transform = 'translateY(-150px)';
-        topHalf.style.opacity = '0';
-        
-        bottomHalf.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
-        bottomHalf.style.transform = 'translateY(150px)';
-        bottomHalf.style.opacity = '0';
-      }, 10);
-      
-      // Удаляем элементы после анимации
-      setTimeout(() => {
-        topHalf.remove();
-        bottomHalf.remove();
-        mainImg.style.display = 'none';
-      }, 1100);
+        balloon.style.display = 'none';
+      }, 500);
     });
   </script>
 </body>
