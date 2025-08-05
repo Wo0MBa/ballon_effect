@@ -193,8 +193,10 @@
       // Экранирование параметров
       const encodedImage = encodeURIComponent(imageUrl);
 
-      // Создание URL для виджета
-      const widgetUrl = `https://wo0mba.github.io/ballon-effect/widget.html?image=${encodedImage}`;
+      // Получаем базовый URL текущей страницы и заменяем index.html на balloon-widget.html
+      const currentUrl = window.location.href;
+      const baseUrl = currentUrl.replace(/\/[^\/]*$/, '/');
+      const widgetUrl = `${baseUrl}balloon-widget.html?image=${encodedImage}`;
 
       // Создание iframe-кода
       const iframeCodeText = `<iframe src="${widgetUrl}" width="100%" height="400" frameborder="0" style="border:none;width:100%;height:400px;overflow:hidden;"></iframe>`;
@@ -202,11 +204,6 @@
       // Отображаем код в textarea
       iframeCode.value = iframeCodeText;
     }
-
-    // Пример использования при загрузке страницы
-    window.addEventListener('DOMContentLoaded', function() {
-      // Можно добавить пример, если нужно
-    });
   </script>
 </body>
 </html>
