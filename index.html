@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Лопающийся шарик</title>
+  <title>Взрывающийся шарик</title>
   <style>
     body {
       display: flex;
@@ -25,38 +25,84 @@
       transform: scale(1.1);
     }
 
-    #explosion {
+    .particle {
       position: absolute;
-      width: 200px;
-      display: none;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <img id="balloon" src="https://i.pinimg.com/736x/66/c9/fd/66c9fd75cececa4204ca192f5d2c04ae.jpg" alt="Balloon">
-  <img id="explosion" src="https://i.gifer.com/origin/98/98cd8b0884579e1d0039f074093070f3_w200.gif" alt="Explosion">
 
   <script>
     const balloon = document.getElementById('balloon');
-    const explosion = document.getElementById('explosion');
+    
+    // Звук взрыва (опционально)
+    function playPopSound() {
+      const audio = new Audio('https://www.soundjay.com/misc/sounds/balloon-pop-2.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log("Звук заблокирован браузером"));
+    }
 
-    balloon.addEventListener('click', () => {
-      // Позиционируем взрыв точно на месте шарика
-      const rect = balloon.getBoundingClientRect();
-      explosion.style.left = rect.left + rect.width/2 - 100 + 'px';
-      explosion.style.top = rect.top + rect.height/2 - 100 + 'px';
+    balloon.addEventListener('click', function() {
+      playPopSound();
       
-      // Скрываем шарик
-      balloon.style.display = 'none';
+      const rect = this.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
       
-      // Показываем взрыв
-      explosion.style.display = 'block';
+      // Скрываем оригинальный шарик
+      this.style.display = 'none';
       
-      // Через 1 секунду скрываем взрыв
-      setTimeout(() => {
-        explosion.style.display = 'none';
-      }, 1000);
+      // Создаем эффект разрыва
+      createExplosion(x, y, this.src);
     });
+
+    function createExplosion(x, y, imgUrl) {
+      const particleCount = 20;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.background = `url(${imgUrl})`;
+        particle.style.backgroundSize = 'cover';
+        particle.style.width = '20px';
+        particle.style.height = '20px';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.borderRadius = '50%';
+        
+        document.body.appendChild(particle);
+        
+        // Анимация полета частицы
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 3;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+        
+        let posX = x;
+        let posY = y;
+        let opacity = 1;
+        
+        const animate = () => {
+          posX += vx;
+          posY += vy;
+          opacity -= 0.02;
+          
+          particle.style.left = posX + 'px';
+          particle.style.top = posY + 'px';
+          particle.style.opacity = opacity;
+          
+          if (opacity > 0) {
+            requestAnimationFrame(animate);
+          } else {
+            particle.remove();
+          }
+        };
+        
+        animate();
+      }
+    }
   </script>
 </body>
 </html>
