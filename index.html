@@ -32,20 +32,49 @@
   </style>
 </head>
 <body>
-  <img id="balloon" src="https://i.pinimg.com/originals/d2/20/b6/d220b6a9c48fb4c048e2ed33d4f20873.png" alt="Balloon">
+  <!-- Звук лопания шарика из локальной папки -->
+  <audio id="pop-sound" preload="auto">
+    <source src="sounds/pop.mp3" type="audio/mpeg">
+  </audio>
+
+  <img id="balloon" src="https://i.pinimg.com/originals/32/28/ae/3228aeba0d048766f196ed97bc0d2795.png" alt="Balloon">
 
   <script>
-    const balloon = document.getElementById('balloon');
-    
-    // Звук взрыва (опционально)
-    function playPopSound() {
-      const audio = new Audio('https://www.soundjay.com/misc/sounds/balloon-pop-2.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log("Звук заблокирован браузером"));
+    // Получаем звуковой элемент с проверкой
+    const popSound = document.getElementById('pop-sound');
+
+    // Улучшенная функция для воспроизведения звука (как в твоем примере)
+    function playSound(soundElement) {
+      // Проверка, что элемент существует
+      if (!soundElement) {
+        console.log("Ошибка: звуковой элемент не найден");
+        return;
+      }
+      
+      try {
+        // Сброс времени воспроизведения
+        if (soundElement.currentTime) {
+          soundElement.currentTime = 0;
+        }
+        
+        // Воспроизведение звука с обработкой Promise
+        const playPromise = soundElement.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Звук заблокирован браузером:", error);
+          });
+        }
+      } catch (error) {
+        console.log("Ошибка воспроизведения звука:", error);
+      }
     }
 
+    const balloon = document.getElementById('balloon');
+    
     balloon.addEventListener('click', function() {
-      playPopSound();
+      // Воспроизводим звук лопания
+      playSound(popSound);
       
       const rect = this.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
