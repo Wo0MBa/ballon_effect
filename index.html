@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Лопающийся шарик</title>
+  <title>Взрывающийся шарик</title>
   <style>
     body {
       display: flex;
@@ -13,37 +13,45 @@
       background: #f0f0f0;
     }
 
-    .balloon {
+    #balloon {
       width: 150px;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .balloon:hover {
-      transform: scale(1.1);
-    }
-
-    .pop {
-      animation: pop 0.5s forwards;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.5); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <img src="https://i.pinimg.com/736x/66/c9/fd/66c9fd75cececa4204ca192f5d2c04ae.jpg" class="balloon" id="balloon" alt="Balloon">
+  <img id="balloon" src="https://i.pinimg.com/736x/66/c9/fd/66c9fd75cececa4204ca192f5d2c04ae.jpg" alt="Balloon">
 
+  <script src="https://cdn.jsdelivr.net/npm/@mojs/core"></script>
   <script>
     const balloon = document.getElementById('balloon');
 
     balloon.addEventListener('click', () => {
-      balloon.classList.add('pop');
-      setTimeout(() => {
-        balloon.style.display = 'none';
-      }, 500);
+      // Скрыть картинку
+      balloon.style.display = 'none';
+
+      // Создать эффект взрыва
+      new mojs.Html({
+        el: balloon,
+        duration: 800,
+        scale: { 1: 0 },
+        opacity: { 1: 0 },
+        isShowEnd: false
+      }).play();
+
+      // Частицы
+      new mojs.Burst({
+        left: balloon.getBoundingClientRect().left + balloon.offsetWidth / 2,
+        top: balloon.getBoundingClientRect().top + balloon.offsetHeight / 2,
+        radius: { 0: 100 },
+        count: 10,
+        children: {
+          shape: 'circle',
+          fill: { 'red': '#ff0000' },
+          duration: 1000,
+          radius: { 10: 0 }
+        }
+      }).play();
     });
   </script>
 </body>
