@@ -16,9 +16,11 @@
     }
 
     #balloon {
-      width: 150px;
+      width: 200px;  /* Увеличил с 150px до 200px */
+      height: 200px; /* Добавил фиксированную высоту */
       cursor: pointer;
       transition: transform 0.2s;
+      object-fit: contain; /* Сохраняет пропорции изображения */
     }
 
     #balloon:hover {
@@ -98,8 +100,8 @@
         particle.className = 'particle';
         particle.style.background = `url(${imgUrl})`;
         particle.style.backgroundSize = 'cover';
-        particle.style.width = '20px';
-        particle.style.height = '20px';
+        particle.style.width = '40px';  /* Увеличил с 20px до 40px (в 2 раза) */
+        particle.style.height = '40px'; /* Увеличил с 20px до 40px (в 2 раза) */
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
         particle.style.borderRadius = '50%';
