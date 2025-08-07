@@ -13,6 +13,7 @@
       margin: 0;
       background: transparent;
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     #balloon {
@@ -37,6 +38,32 @@
       z-index: 9999;
       object-fit: contain;
     }
+
+    #explosion-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: bold;
+      color: #1a73e8;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(26, 115, 232, 0.6);
+      text-align: center;
+      z-index: 10000;
+      display: none;
+      animation: pulse 2s infinite;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -47,14 +74,18 @@
   </audio>
 
   <img id="balloon" src="" alt="Balloon">
+  <div id="explosion-text"></div>
 
   <script>
     const popSound = document.getElementById('pop-sound');
     const balloon = document.getElementById('balloon');
+    const explosionText = document.getElementById('explosion-text');
 
-    // Получаем изображение из URL
+    // Получаем изображение и текст из URL
     const urlParams = new URLSearchParams(window.location.search);
     const imageUrl = urlParams.get('image') || 'https://i.imgur.com/5Q1V9gJ.png';
+    const textContent = urlParams.get('text') || 'Взрыв!'; // Текст по умолчанию
+    
     balloon.src = imageUrl;
 
     // Функция воспроизведения звука
@@ -108,10 +139,26 @@
             requestAnimationFrame(animate);
           } else {
             particle.remove();
+            // Когда все частицы исчезли, показываем текст
+            checkAndShowText();
           }
         };
 
         animate();
+      }
+    }
+
+    // Проверяем, все ли частицы исчезли, и показываем текст
+    let particleCount = 0;
+    function checkAndShowText() {
+      particleCount++;
+      const allParticles = document.querySelectorAll('.particle');
+      if (allParticles.length === 0 && particleCount >= 20) {
+        if (textContent) {
+          explosionText.textContent = textContent;
+          explosionText.style.display = 'block';
+        }
+        particleCount = 0; // Сбрасываем счетчик
       }
     }
 
