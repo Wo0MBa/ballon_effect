@@ -57,7 +57,7 @@
       color: #00bfff;
     }
 
-    input[type="url"] {
+    input[type="url"], input[type="text"] {
       width: 100%;
       padding: 12px;
       border: 2px solid #00bfff;
@@ -68,7 +68,7 @@
       transition: all 0.3s ease;
     }
 
-    input[type="url"]:focus {
+    input[type="url"]:focus, input[type="text"]:focus {
       outline: none;
       border-color: #00ffff;
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
@@ -137,6 +137,11 @@
       <input type="url" id="image-url" placeholder="" value="">
     </div>
 
+    <div class="form-group">
+      <label for="text-content">Текст после взрыва:</label>
+      <input type="text" id="text-content" placeholder="Введите текст, который появится после взрыва" value="">
+    </div>
+
     <button id="generate-iframe">Получить iframe-код для Genially</button>
 
     <textarea id="iframe-code" readonly>Здесь появится iframe-код для Genially</textarea>
@@ -145,6 +150,7 @@
       <p><strong>Как использовать:</strong></p>
       <ol>
         <li>Введите URL изображения</li>
+        <li>Введите текст, который появится после взрыва</li>
         <li>Нажмите "Получить iframe-код"</li>
         <li>Скопируйте код и вставьте в Genially как веб-виджет</li>
         <li>Творите!</li>
@@ -160,6 +166,7 @@
     document.getElementById('generate-iframe').addEventListener('click', function () {
       // Получаем значения из формы
       const imageUrl = document.getElementById('image-url').value.trim();
+      const textContent = document.getElementById('text-content').value.trim();
 
       // Валидация
       if (!imageUrl) {
@@ -168,7 +175,7 @@
       }
 
       // Генерируем iframe-код
-      generateIframeCode(imageUrl);
+      generateIframeCode(imageUrl, textContent);
 
       // Автоматическое копирование кода
       setTimeout(() => {
@@ -179,14 +186,15 @@
     });
 
     // Генерация iframe-кода
-    function generateIframeCode(imageUrl) {
+    function generateIframeCode(imageUrl, textContent) {
       // Экранирование параметров
       const encodedImage = encodeURIComponent(imageUrl);
+      const encodedText = encodeURIComponent(textContent);
 
       // Получаем базовый URL текущей страницы и заменяем index.html на balloon-widget.html
       const currentUrl = window.location.href;
       const baseUrl = currentUrl.replace(/\/[^\/]*$/, '/');
-      const widgetUrl = `${baseUrl}balloon-widget.html?image=${encodedImage}`;
+      const widgetUrl = `${baseUrl}balloon-widget.html?image=${encodedImage}&text=${encodedText}`;
 
       // Создание iframe-кода
       const iframeCodeText = `<iframe src="${widgetUrl}" width="100%" height="400" frameborder="0" style="border:none;width:100%;height:400px;overflow:hidden;"></iframe>`;
