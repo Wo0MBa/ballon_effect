@@ -15,6 +15,17 @@
       overflow: hidden;
     }
 
+    /* Контейнер для частиц - больше основного виджета */
+    #particles-container {
+      position: absolute;
+      width: 600px;  /* Шире основного виджета */
+      height: 600px; /* Выше основного виджета */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none; /* Не мешает взаимодействию с шариком */
+    }
+
     #balloon {
       width: 200px;
       height: 200px;
@@ -22,6 +33,7 @@
       transition: transform 0.2s;
       object-fit: contain;
       display: block;
+      pointer-events: auto; /* Разрешаем клики только на шарике */
     }
 
     #balloon:hover {
@@ -38,6 +50,9 @@
   </style>
 </head>
 <body>
+  <!-- Контейнер для частиц -->
+  <div id="particles-container"></div>
+  
   <!-- Звук лопания шарика из локальной папки -->
   <audio id="pop-sound" preload="auto">
     <source src="sounds/pop.mp3" type="audio/mpeg">
@@ -48,6 +63,7 @@
   <script>
     // Получаем звуковой элемент с проверкой
     const popSound = document.getElementById('pop-sound');
+    const particlesContainer = document.getElementById('particles-container'); // Получаем контейнер для частиц
 
     // Улучшенная функция для воспроизведения звука
     function playSound(soundElement) {
@@ -92,16 +108,12 @@
       // Скрываем оригинальный шарик
       this.style.display = 'none';
       
-      // Создаем эффект разрыва
+      // Создаем эффект разрыва в контейнере для частиц
       createExplosion(x, y, this.src);
     });
 
     function createExplosion(x, y, imgUrl) {
       const particleCount = 20;
-      
-      // Получаем размеры видимой области
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
       
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -109,10 +121,16 @@
         particle.style.background = `url(${imgUrl})`;
         particle.style.backgroundSize = 'cover';
         particle.style.backgroundPosition = 'center';
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
         
-        document.body.appendChild(particle);
+        // Позиционируем частицы относительно контейнера
+        const containerRect = particlesContainer.getBoundingClientRect();
+        const relativeX = x - containerRect.left;
+        const relativeY = y - containerRect.top;
+        
+        particle.style.left = (relativeX - 20) + 'px';
+        particle.style.top = (relativeY - 20) + 'px';
+        
+        particlesContainer.appendChild(particle);
         
         // Анимация полета частицы (замедленная)
         const angle = Math.random() * Math.PI * 2;
@@ -120,8 +138,8 @@
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
         
-        let posX = x;
-        let posY = y;
+        let posX = relativeX - 20;
+        let posY = relativeY - 20;
         let opacity = 1;
         
         // Замедленное исчезновение
@@ -129,21 +147,6 @@
           posX += vx;
           posY += vy;
           opacity -= 0.01; // Замедлил с 0.02 до 0.01
-          
-          // Ограничиваем движение границами видимой области
-          if (posX < 20) {
-            posX = 20;
-            // Можно остановить частицу или отразить
-          } else if (posX > viewportWidth - 60) {
-            posX = viewportWidth - 60;
-            // Можно остановить частицу или отразить
-          }
-          
-          if (posY < 20) {
-            posY = 20;
-          } else if (posY > viewportHeight - 60) {
-            posY = viewportHeight - 60;
-          }
           
           particle.style.left = posX + 'px';
           particle.style.top = posY + 'px';
