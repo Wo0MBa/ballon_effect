@@ -40,28 +40,28 @@
     }
 
     #explosion-text {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #1a73e8;
-      color: #000; /* Черный цвет текста */
-      font-size: 24px;
-      font-weight: bold;
-      padding: 20px 30px;
-      border: 2px solid #4fc3f7;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(79, 195, 247, 0.6);
-      pointer-events: auto;
-      text-align: center;
-      animation: pulse 1.5s infinite;
-      z-index: 10000;
-      display: none;
-      user-select: none;
-      cursor: pointer;
-      max-width: 90%;
-      word-wrap: break-word;
-    }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a73e8;
+  color: #fff; /* Белый цвет текста */
+  font-size: 24px;
+  font-weight: bold;
+  padding: 20px 30px;
+  border: 2px solid #4fc3f7;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(79, 195, 247, 0.6);
+  pointer-events: auto;
+  text-align: center;
+  animation: pulse 1.5s infinite;
+  z-index: 10000;
+  display: none;
+  user-select: none;
+  cursor: pointer;
+  max-width: 90%;
+  word-wrap: break-word;
+}
 
     @keyframes pulse {
       0% { transform: translate(-50%, -50%) scale(1); }
