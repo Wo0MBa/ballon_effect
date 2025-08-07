@@ -16,11 +16,12 @@
     }
 
     #balloon {
-      width: 200px;  /* Увеличил с 150px до 200px */
-      height: 200px; /* Добавил фиксированную высоту */
+      width: 250px;  /* Увеличил с 200px до 250px */
+      height: 250px; /* Увеличил с 200px до 250px */
       cursor: pointer;
       transition: transform 0.2s;
-      object-fit: contain; /* Сохраняет пропорции изображения */
+      object-fit: contain;
+      display: block;
     }
 
     #balloon:hover {
@@ -30,6 +31,9 @@
     .particle {
       position: absolute;
       pointer-events: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
     }
   </style>
 </head>
@@ -100,28 +104,27 @@
         particle.className = 'particle';
         particle.style.background = `url(${imgUrl})`;
         particle.style.backgroundSize = 'cover';
-        particle.style.width = '40px';  /* Увеличил с 20px до 40px (в 2 раза) */
-        particle.style.height = '40px'; /* Увеличил с 20px до 40px (в 2 раза) */
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        particle.style.borderRadius = '50%';
+        particle.style.backgroundPosition = 'center';
+        particle.style.left = (x - 20) + 'px';
+        particle.style.top = (y - 20) + 'px';
         
         document.body.appendChild(particle);
         
-        // Анимация полета частицы
+        // Анимация полета частицы (замедленная)
         const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 3;
+        const speed = (2 + Math.random() * 3) * 0.7; // Замедлил в 1.4 раза
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
         
-        let posX = x;
-        let posY = y;
+        let posX = x - 20;
+        let posY = y - 20;
         let opacity = 1;
         
+        // Замедленное исчезновение
         const animate = () => {
           posX += vx;
           posY += vy;
-          opacity -= 0.02;
+          opacity -= 0.01; // Замедлил с 0.02 до 0.01
           
           particle.style.left = posX + 'px';
           particle.style.top = posY + 'px';
