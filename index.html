@@ -3,197 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Генератор взрывающегося шарика для Genially</title>
+  <title>Взрывающийся шарик</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0c1427, #1a1f33, #0c1427);
-      color: #e0e0e0;
-      min-height: 100vh;
-      padding: 20px;
-      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
     }
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      text-align: center;
-      color: #00bfff;
-      text-shadow: 0 0 10px rgba(0, 191, 255, 0.7);
-      margin-bottom: 15px;
-      white-space: normal;
-    }
-
-    p.subtitle {
-      font-size: 1rem;
-      text-align: center;
-      color: #aaa;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #00bfff;
-    }
-
-    input[type="url"] {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #00bfff;
-      border-radius: 8px;
-      background: rgba(0, 0, 0, 0.2);
-      color: #e0e0e0;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    input[type="url"]:focus {
-      outline: none;
-      border-color: #00ffff;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-    }
-
-    button {
-      background: #00bfff;
-      color: white;
-      border: none;
-      padding: 14px 25px;
-      font-size: 1.1rem;
-      border-radius: 8px;
+    #balloon {
+      width: 200px;
+      height: 200px;
       cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      transition: transform 0.2s;
+      object-fit: contain;
       display: block;
-      width: 100%;
-      margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+      pointer-events: auto;
     }
 
-    button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 255, 255, 0.6);
+    #balloon:hover {
+      transform: scale(1.1);
     }
 
-    button:active {
-      transform: translateY(1px);
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 150px;
-      background: rgba(0, 0, 0, 0.2);
-      color: #e0e0e0;
-      padding: 15px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.9rem;
-      border: 2px solid #00bfff;
-      resize: vertical;
-      transition: all 0.3s ease;
-    }
-
-    textarea:focus {
-      outline: none;
-      border-color: #00ffff;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-    }
-
-    .instructions {
-      margin-top: 20px;
-      font-size: 0.9rem;
-      color: #aaa;
+    .particle {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      z-index: 9999;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Авторское расширение от Феи русского</h1>
-    <h1>Лопни скорее</h1>
-    <p class="subtitle">Введите URL изображения и получите готовое расширение</p>
 
-    <div class="form-group">
-      <label for="image-url">URL изображения:</label>
-      <input type="url" id="image-url" placeholder="" value="">
-    </div>
+  <!-- Звук лопания шарика -->
+  <audio id="pop-sound" preload="auto">
+    <source src="sounds/pop.mp3" type="audio/mpeg">
+  </audio>
 
-    <button id="generate-iframe">Получить iframe-код для Genially</button>
-
-    <textarea id="iframe-code" readonly>Здесь появится iframe-код для Genially</textarea>
-
-    <div class="instructions">
-      <p><strong>Как использовать:</strong></p>
-      <ol>
-        <li>Введите URL изображения</li>
-        <li>Нажмите "Получить iframe-код"</li>
-        <li>Скопируйте код и вставьте в Genially как веб-виджет</li>
-        <li>Творите!</li>
-      </ol>
-    </div>
-  </div>
+  <img id="balloon" src="" alt="Balloon">
 
   <script>
-    // DOM элементы
-    const iframeCode = document.getElementById('iframe-code');
+    const popSound = document.getElementById('pop-sound');
+    const balloon = document.getElementById('balloon');
 
-    // Обработчик кнопки генерации iframe
-    document.getElementById('generate-iframe').addEventListener('click', function () {
-      // Получаем значения из формы
-      const imageUrl = document.getElementById('image-url').value.trim();
+    // Получаем изображение из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageUrl = urlParams.get('image') || 'https://i.imgur.com/5Q1V9gJ.png';
+    balloon.src = imageUrl;
 
-      // Валидация
-      if (!imageUrl) {
-        alert('Пожалуйста, введите URL изображения');
-        return;
+    // Функция воспроизведения звука
+    function playSound(soundElement) {
+      if (!soundElement) return;
+
+      try {
+        soundElement.currentTime = 0;
+        const playPromise = soundElement.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => console.log("Звук заблокирован:", error));
+        }
+      } catch (error) {
+        console.log("Ошибка воспроизведения звука:", error);
       }
-
-      // Генерируем iframe-код
-      generateIframeCode(imageUrl);
-
-      // Автоматическое копирование кода
-      setTimeout(() => {
-        iframeCode.select();
-        document.execCommand('copy');
-        alert('iframe-код скопирован в буфер обмена!');
-      }, 100);
-    });
-
-    // Генерация iframe-кода
-    function generateIframeCode(imageUrl) {
-      // Экранирование параметров
-      const encodedImage = encodeURIComponent(imageUrl);
-
-      // Получаем базовый URL текущей страницы и заменяем index.html на balloon-widget.html
-      const currentUrl = window.location.href;
-      const baseUrl = currentUrl.replace(/\/[^\/]*$/, '/');
-      const widgetUrl = `${baseUrl}balloon-widget.html?image=${encodedImage}`;
-
-      // Создание iframe-кода
-      const iframeCodeText = `<iframe src="${widgetUrl}" width="100%" height="600" frameborder="0" style="border:none;width:100%;height:600px;overflow:hidden;"></iframe>`;
-
-      // Отображаем код в textarea
-      iframeCode.value = iframeCodeText;
     }
+
+    // Функция создания частиц
+    function createExplosion(x, y, imgUrl) {
+      const particleCount = 20;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('img');
+        particle.src = imgUrl;
+        particle.className = 'particle';
+        particle.style.left = `${x - 20}px`;
+        particle.style.top = `${y - 20}px`;
+        particle.style.opacity = 1;
+
+        document.body.appendChild(particle);
+
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 2 + Math.random() * 3;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+
+        let posX = x - 20;
+        let posY = y - 20;
+        let opacity = 1;
+
+        const animate = () => {
+          posX += vx;
+          posY += vy;
+          opacity -= 0.02;
+
+          particle.style.left = `${posX}px`;
+          particle.style.top = `${posY}px`;
+          particle.style.opacity = opacity;
+
+          if (opacity > 0) {
+            requestAnimationFrame(animate);
+          } else {
+            particle.remove();
+          }
+        };
+
+        animate();
+      }
+    }
+
+    // Обработчик клика по шарику
+    balloon.addEventListener('click', function () {
+      playSound(popSound);
+
+      const rect = this.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      this.style.display = 'none';
+
+      createExplosion(centerX, centerY, this.src);
+    });
   </script>
 </body>
 </html>
