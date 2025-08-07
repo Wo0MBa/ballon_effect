@@ -15,17 +15,6 @@
       overflow: hidden;
     }
 
-    /* Контейнер для частиц - больше основного виджета */
-    #particles-container {
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      pointer-events: none;
-    }
-
     #balloon {
       width: 200px;
       height: 200px;
@@ -41,19 +30,18 @@
     }
 
     .particle {
-      position: absolute;
-      pointer-events: none;
+      position: fixed;
       width: 40px;
       height: 40px;
-      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <!-- Контейнер для частиц -->
-  <div id="particles-container"></div>
-  
-  <!-- Звук лопания шарика из локальной папки -->
+
+  <!-- Звук лопания шарика -->
   <audio id="pop-sound" preload="auto">
     <source src="sounds/pop.mp3" type="audio/mpeg">
   </audio>
@@ -61,130 +49,84 @@
   <img id="balloon" src="" alt="Balloon">
 
   <script>
-    // Получаем звуковой элемент с проверкой
     const popSound = document.getElementById('pop-sound');
-    const particlesContainer = document.getElementById('particles-container');
+    const balloon = document.getElementById('balloon');
 
-    // Улучшенная функция для воспроизведения звука
+    // Получаем изображение из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageUrl = urlParams.get('image') || 'https://i.imgur.com/5Q1V9gJ.png';
+    balloon.src = imageUrl;
+
+    // Функция воспроизведения звука
     function playSound(soundElement) {
-      if (!soundElement) {
-        console.log("Ошибка: звуковой элемент не найден");
-        return;
-      }
-      
+      if (!soundElement) return;
+
       try {
-        if (soundElement.currentTime) {
-          soundElement.currentTime = 0;
-        }
-        
+        soundElement.currentTime = 0;
         const playPromise = soundElement.play();
-        
         if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.log("Звук заблокирован браузером:", error);
-          });
+          playPromise.catch(error => console.log("Звук заблокирован:", error));
         }
       } catch (error) {
         console.log("Ошибка воспроизведения звука:", error);
       }
     }
 
-    // Получаем параметры из URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const imageUrl = urlParams.get('image') || 'https://i.imgur.com/5Q1V9gJ.png';
-    
-    // Устанавливаем изображение
-    const balloon = document.getElementById('balloon');
-    balloon.src = imageUrl;
-
-    balloon.addEventListener('click', function() {
-      // Воспроизводим звук лопания
-      playSound(popSound);
-      
-      const rect = this.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      
-      // Скрываем оригинальный шарик
-      this.style.display = 'none';
-      
-      // Создаем эффект разрыва в контейнере для частиц
-      createExplosion(x, y, this.src);
-    });
-
+    // Функция создания частиц
     function createExplosion(x, y, imgUrl) {
       const particleCount = 20;
-      
-      // Получаем размеры контейнера
-      const containerRect = particlesContainer.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const containerHeight = containerRect.height;
-      
-      // Определяем границы, где частицы должны начать исчезать (с отступом)
-      const boundaryX = containerWidth - 60; // 40px (размер частицы) + 20px отступ
-      const boundaryY = containerHeight - 60; // 40px (размер частицы) + 20px отступ
-      
+
       for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
+        const particle = document.createElement('img');
+        particle.src = imgUrl;
         particle.className = 'particle';
-        
-        particle.style.backgroundImage = `url(${imgUrl})`;
-        particle.style.backgroundSize = 'cover';
-        particle.style.backgroundPosition = 'center';
-        particle.style.backgroundRepeat = 'no-repeat';
-        
-        // Позиционируем частицы относительно контейнера
-        const relativeX = x - containerRect.left;
-        const relativeY = y - containerRect.top;
-        
-        particle.style.left = (relativeX - 20) + 'px';
-        particle.style.top = (relativeY - 20) + 'px';
-        
-        particlesContainer.appendChild(particle);
-        
-        // Анимация полета частицы (замедленная)
-        const angle = Math.random() * Math.PI * 2;
-        const speed = (2 + Math.random() * 3) * 0.7;
+        particle.style.left = `${x - 20}px`;
+        particle.style.top = `${y - 20}px`;
+        particle.style.opacity = 1;
+
+        document.body.appendChild(particle);
+
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 2 + Math.random() * 3;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
-        
-        let posX = relativeX - 20;
-        let posY = relativeY - 20;
+
+        let posX = x - 20;
+        let posY = y - 20;
         let opacity = 1;
-        let shouldFade = false; // Флаг для начала исчезновения
-        
-        // Замедленное исчезновение
+
         const animate = () => {
-          // Проверяем, достигла ли частица границы для начала исчезновения
-          if (!shouldFade) {
-            if (posX < 40 || posX > boundaryX || posY < 40 || posY > boundaryY) {
-              shouldFade = true;
-            }
-          }
-          
-          // Если пора исчезать, уменьшаем прозрачность
-          if (shouldFade) {
-            opacity -= 0.02; // Быстрее исчезает
-          } else {
-            // Иначе продолжаем движение
-            posX += vx;
-            posY += vy;
-          }
-          
-          particle.style.left = posX + 'px';
-          particle.style.top = posY + 'px';
+          posX += vx;
+          posY += vy;
+          opacity -= 0.02;
+
+          particle.style.left = `${posX}px`;
+          particle.style.top = `${posY}px`;
           particle.style.opacity = opacity;
-          
+
           if (opacity > 0) {
             requestAnimationFrame(animate);
           } else {
             particle.remove();
           }
         };
-        
+
         animate();
       }
     }
+
+    // Обработчик клика по шарику
+    balloon.addEventListener('click', function () {
+      playSound(popSound);
+
+      const rect = this.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      this.style.display = 'none';
+
+      createExplosion(centerX, centerY, this.src);
+    });
   </script>
 </body>
 </html>
