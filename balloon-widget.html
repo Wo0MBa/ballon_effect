@@ -13,7 +13,7 @@
       margin: 0;
       background: transparent;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
     }
 
     #balloon {
@@ -44,24 +44,29 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 28px;
+      background: #1a73e8;
+      color: #fff;
+      font-size: 24px;
       font-weight: bold;
-      color: #1a73e8;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 20px 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(26, 115, 232, 0.6);
+      padding: 12px 20px;
+      border: 2px solid #4fc3f7;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 0 15px rgba(79, 195, 247, 0.6);
+      pointer-events: auto;
       text-align: center;
+      animation: pulse 1.5s infinite;
       z-index: 10000;
       display: none;
-      animation: pulse 2s infinite;
+      user-select: none;
+      cursor: pointer;
       max-width: 80%;
       word-wrap: break-word;
     }
 
     @keyframes pulse {
       0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.05); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
       100% { transform: translate(-50%, -50%) scale(1); }
     }
   </style>
@@ -103,7 +108,7 @@
       }
     }
 
-    // Функция создания частиц
+    // Функция создания частиц (с замедленным распадом)
     function createExplosion(x, y, imgUrl) {
       const particleCount = 20;
 
@@ -118,7 +123,7 @@
         document.body.appendChild(particle);
 
         const angle = Math.random() * 2 * Math.PI;
-        const speed = 2 + Math.random() * 3;
+        const speed = (2 + Math.random() * 3) * 0.6; // Замедлил в 1.6 раза
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
 
@@ -129,7 +134,7 @@
         const animate = () => {
           posX += vx;
           posY += vy;
-          opacity -= 0.02;
+          opacity -= 0.01; // Замедлил с 0.02 до 0.01
 
           particle.style.left = `${posX}px`;
           particle.style.top = `${posY}px`;
@@ -150,15 +155,23 @@
 
     // Проверяем, все ли частицы исчезли, и показываем текст
     let particleCount = 0;
+    let totalParticles = 0;
+    
     function checkAndShowText() {
       particleCount++;
       const allParticles = document.querySelectorAll('.particle');
-      if (allParticles.length === 0 && particleCount >= 20) {
+      if (allParticles.length === 0 && particleCount >= totalParticles) {
         if (textContent) {
           explosionText.textContent = textContent;
           explosionText.style.display = 'block';
+          
+          // Добавляем обработчик клика для закрытия текста
+          explosionText.addEventListener('click', function() {
+            this.style.display = 'none';
+          });
         }
-        particleCount = 0; // Сбрасываем счетчик
+        particleCount = 0;
+        totalParticles = 0;
       }
     }
 
@@ -171,6 +184,10 @@
       const centerY = rect.top + rect.height / 2;
 
       this.style.display = 'none';
+      
+      // Сбрасываем счетчики
+      particleCount = 0;
+      totalParticles = 20;
 
       createExplosion(centerX, centerY, this.src);
     });
