@@ -115,18 +115,25 @@
     function createExplosion(x, y, imgUrl) {
       const particleCount = 20;
       
+      // Получаем размеры контейнера
+      const containerRect = particlesContainer.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+      
+      // Определяем границы, где частицы должны начать исчезать (с отступом)
+      const boundaryX = containerWidth - 60; // 40px (размер частицы) + 20px отступ
+      const boundaryY = containerHeight - 60; // 40px (размер частицы) + 20px отступ
+      
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         
-        // Используем background-image вместо background для лучшего контроля
         particle.style.backgroundImage = `url(${imgUrl})`;
         particle.style.backgroundSize = 'cover';
         particle.style.backgroundPosition = 'center';
         particle.style.backgroundRepeat = 'no-repeat';
         
         // Позиционируем частицы относительно контейнера
-        const containerRect = particlesContainer.getBoundingClientRect();
         const relativeX = x - containerRect.left;
         const relativeY = y - containerRect.top;
         
@@ -144,12 +151,25 @@
         let posX = relativeX - 20;
         let posY = relativeY - 20;
         let opacity = 1;
+        let shouldFade = false; // Флаг для начала исчезновения
         
         // Замедленное исчезновение
         const animate = () => {
-          posX += vx;
-          posY += vy;
-          opacity -= 0.01;
+          // Проверяем, достигла ли частица границы для начала исчезновения
+          if (!shouldFade) {
+            if (posX < 40 || posX > boundaryX || posY < 40 || posY > boundaryY) {
+              shouldFade = true;
+            }
+          }
+          
+          // Если пора исчезать, уменьшаем прозрачность
+          if (shouldFade) {
+            opacity -= 0.02; // Быстрее исчезает
+          } else {
+            // Иначе продолжаем движение
+            posX += vx;
+            posY += vy;
+          }
           
           particle.style.left = posX + 'px';
           particle.style.top = posY + 'px';
